@@ -10,10 +10,11 @@ import java.util.ArrayList;
  *
  * @author migue
  */
-public class ParqueoController {
+public class ParqueoController implements IParqueo {
 
     private ArrayList<ParqueoEspacio> _db = new ArrayList<>();
 
+    @Override
     public void RegistrarIngreso() {
         ParqueoEspacio parqueoInfo = new ParqueoEspacio();
 
