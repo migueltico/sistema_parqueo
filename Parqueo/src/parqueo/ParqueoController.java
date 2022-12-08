@@ -18,6 +18,7 @@ public class ParqueoController implements IParqueo {
     public void RegistrarIngreso() {
         ParqueoEspacio parqueoInfo = new ParqueoEspacio();
 
+        
         parqueoInfo._horaEntrada = "10";
         parqueoInfo._horaSalida = "12";
         parqueoInfo._minutoEntrada = "23";
@@ -30,7 +31,6 @@ public class ParqueoController implements IParqueo {
         _db.add(parqueoInfo);
 
     }
-
     public void MostrarParqueo() {
         _db.forEach((espacio) -> {
             System.out.println("Placa: " + espacio._placaVehiculo);
