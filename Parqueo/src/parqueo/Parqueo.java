@@ -14,7 +14,11 @@ public class Parqueo {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        
+        ParqueoController controller = new ParqueoController();
+        
+        controller.RegistrarIngreso();
+        controller.MostrarParqueo();
     }
     
 }
