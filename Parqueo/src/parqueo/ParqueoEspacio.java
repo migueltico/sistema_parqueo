@@ -17,4 +17,5 @@ public class ParqueoEspacio {
     public ArrayList<String> _pasajeros = new ArrayList<>();
     public String _numeroEntrada;
     public String _horaSalida;   
+    public String _codigo;
 }
