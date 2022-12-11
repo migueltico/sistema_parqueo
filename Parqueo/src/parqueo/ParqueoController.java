@@ -5,47 +5,155 @@
 package parqueo;
 
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author migue
  */
-public class ParqueoController {
+public class ParqueoController implements IParqueo {
 
-    private ArrayList<ParqueoEspacio> _db = new ArrayList<>();
+  private ArrayList<ParqueoEspacio> _db = new ArrayList<>();
 
-    public void RegistrarIngreso() {
-        ParqueoEspacio parqueoInfo = new ParqueoEspacio();
+  @Override
+  public void RegistrarIngreso() {
+    String horaEntrada = SetParqueoInfo(
+      "Por favor ingrese la hora de entrada",
+      1,
+      2,
+      false
+    );
+    String minutoEntrada = SetParqueoInfo(
+      "Por favor ingrese el minuto de entrada",
+      1,
+      2,
+      false
+    );
+    String numeroEntrada = SetParqueoInfo(
+      "Por favor ingrese el numero de entrada",
+      1,
+      10,
+      false
+    );
+    String codigo = CrearCodigo();
 
-        parqueoInfo._horaEntrada = "10";
-        parqueoInfo._horaSalida = "12";
-        parqueoInfo._minutoEntrada = "23";
-        parqueoInfo._numeroEntrada = "968554132A";
-        parqueoInfo._pasajeros.add("Pablo");
-        parqueoInfo._pasajeros.add("Maria");
-        parqueoInfo._pasajeros.add("Juan");
-        parqueoInfo._placaVehiculo = "BDA 7896";
+    ParqueoEspacio parqueoInfo = new ParqueoEspacio(
+      horaEntrada,
+      minutoEntrada,
+      numeroEntrada
+    );
+    parqueoInfo.setCodigo(codigo);
+    parqueoInfo.setPlacaVehiculo(
+      SetParqueoInfo("Por favor ingrese el numero de placa", 1, 10, true)
+    );
+    parqueoInfo.setPasajeros(
+      SetPasajerosList()
+    );
 
-        _db.add(parqueoInfo);
+    _db.add(parqueoInfo);
+  }
 
+  public boolean RegistrarPlaca(String placa) {
+    return true;
+  }
+
+  private String SetParqueoInfo(
+    String msg,
+    int minLen,
+    int maxLen,
+    boolean validarPlaca
+  ) {
+    boolean keepAsk = true;
+    do {
+      String input = JOptionPane.showInputDialog(msg);
+      if (input.length() >= minLen && input.length() <= maxLen) {
+        if (validarPlaca) {
+          if (RegistrarPlaca(input)) {
+            return input;
+          } else {
+            JOptionPane.showMessageDialog(
+              null,
+              "El dato ingresado es una placa existente"
+            );
+          }
+        } else {
+          return input;
+        }
+      }
+      if (input.length() < minLen) {
+        JOptionPane.showMessageDialog(null, "El dato ingresado es muy corto");
+      }
+      if (input.length() > maxLen) {
+        JOptionPane.showMessageDialog(null, "El dato ingresado es muy largo");
+      }
+
+      int option = JOptionPane.showConfirmDialog(
+        null,
+        "Desea continuar?",
+        "Continuar",
+        JOptionPane.YES_NO_OPTION
+      );
+      if (option == JOptionPane.YES_OPTION) {
+        keepAsk = true;
+      } else {
+        keepAsk = false;
+      }
+    } while (keepAsk);
+
+    return "";
+  }
+
+  private ArrayList<String> SetPasajerosList() {
+    ArrayList<String> pasajeros = new ArrayList<>();
+    boolean keepAsk = true;
+    do {
+      String input = JOptionPane.showInputDialog(
+        "Por favor ingrese el nombre del pasajero"
+      );
+      if (input.length() < 1) {
+        JOptionPane.showMessageDialog(
+          null,
+          "El dato ingresado es muy corto o muy largo",
+          "Error",
+          JOptionPane.ERROR_MESSAGE
+        );
+      } else {
+        pasajeros.add(input);
+      }
+      int optionMore = JOptionPane.showConfirmDialog(
+        null,
+        "Desea continuar agregando pasajeros a la lista?",
+        "Continuar",
+        JOptionPane.YES_NO_OPTION
+      );
+      if (optionMore == JOptionPane.NO_OPTION) {
+        keepAsk = false;
+      }
+    } while (keepAsk);
+    return pasajeros;
+  }
+
+  private String CrearCodigo() {
+    return "123";
+  }
+
+  public void MostrarParqueo() {
+    for (ParqueoEspacio parqueo : _db) {
+      System.out.println("Codigo: " + parqueo.getCodigo());
+      System.out.println("Placa del Vehiculo: " + parqueo.getPlacaVehiculo());
+      System.out.println("Hora de entrada: " + parqueo.getHoraEntrada());
+      System.out.println("Numero de entrada: " + parqueo.getNumeroEntrada());
+      System.out.println("Hora de salida: " + parqueo.getHoraSalida());
+      String pasajeros = "";
+      for (String pasajero : parqueo.getPasajeros()) {
+        pasajeros += pasajero + ", ";
+      }
+      //remove last comma and space
+      pasajeros =
+        pasajeros.length() > 2
+          ? pasajeros.substring(0, pasajeros.length() - 2)
+          : pasajeros;
+      System.out.println(pasajeros);
     }
-
-    public void MostrarParqueo() {
-        _db.forEach((espacio) -> {
-            System.out.println("Placa: " + espacio._placaVehiculo);
-            System.out.println("Hora de Entrada: " + espacio._horaEntrada);
-            System.out.println("Hora de Salida: " + espacio._horaSalida);
-            System.out.println("Numero de entrada: " + espacio._numeroEntrada);
-            
-
-            String _nombres = "";
-
-            for (String nombre : espacio._pasajeros) {
-                _nombres += nombre + ", ";
-            }
-            _nombres = _nombres.substring(0,_nombres.length() - 2);
-            System.out.println("Pasajeros: " + _nombres);
-
-        });
-    }
+  }
 }
