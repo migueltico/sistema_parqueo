@@ -5,6 +5,7 @@
 package parqueo;
 
 import java.util.ArrayList;
+import java.util.Random;
 import javax.swing.JOptionPane;
 
 /**
@@ -54,6 +55,15 @@ public class ParqueoController implements IParqueo {
   }
 
   public boolean RegistrarPlaca(String placa) {
+      for (ParqueoEspacio parqueo : _db) {
+         if(parqueo.getPlacaVehiculo().equals(placa) ) {
+            return false;
+            
+            
+         }
+        
+      
+     }
     return true;
   }
 
@@ -134,7 +144,28 @@ public class ParqueoController implements IParqueo {
   }
 
   private String CrearCodigo() {
-    return "123";
+      
+    int leftLimit = 48; // numeral '0'
+    int rightLimit = 122; // letter 'z'
+    int targetStringLength = 10;
+    Random random = new Random();
+
+    String generatedString = random.ints(leftLimit, rightLimit + 1)
+      .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+      .limit(targetStringLength)
+      .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+      .toString();
+      System.out.println(generatedString);
+      
+     for (ParqueoEspacio parqueo : _db) {
+         if(parqueo.getCodigo().equals(generatedString) ) {
+            generatedString = CrearCodigo();
+            
+         }
+        
+      
+     }
+    return generatedString;
   }
 
   public void MostrarParqueo() {
