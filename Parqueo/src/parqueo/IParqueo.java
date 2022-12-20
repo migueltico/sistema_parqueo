@@ -10,6 +10,8 @@ package parqueo;
  */
 public interface IParqueo {
     
-    void RegistrarIngreso();
+    void registerCarEntry();
+    void checkOutCar();
+    void findCarByUser();
     
 }

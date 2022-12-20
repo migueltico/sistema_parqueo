@@ -4,74 +4,170 @@
  */
 package parqueo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  *
  * @author migue
  */
-public class ParqueoEspacio {
+public class ParqueoEspacio implements Serializable {
 
-  private String _horaEntrada;
-  private String _minutoEntrada;
-  private String _placaVehiculo;
-  private ArrayList<String> _pasajeros = new ArrayList<>();
-  private String _numeroEntrada;
-  private String _horaSalida;
-  private String _minutoSalida;
-  private String _codigo;
+  private String horaEntrada;
+  private String minutoEntrada;
+  private String placaVehiculo;
+  private ArrayList<String> pasajeros = new ArrayList<>();
+  private String numeroEntrada;
+  private String horaSalida;
+  private String minutoSalida;
+  private String codigo;
+  private String zona;
+  private String numeroParqueo;
+  private String estado;
 
-  ///make a constructor
+  ///make a constructor using all the fields
   public ParqueoEspacio(
     String horaEntrada,
     String minutoEntrada,
-    String numeroEntrada
+    String placaVehiculo,
+    ArrayList<String> pasajeros,
+    String numeroEntrada,
+    String horaSalida,
+    String minutoSalida,
+    String codigo,
+    String zona,
+    String numeroParqueo,
+    String estado
   ) {
-    this._horaEntrada = horaEntrada;
-    this._minutoEntrada = minutoEntrada;
-    this._numeroEntrada = numeroEntrada;
+    this.horaEntrada = horaEntrada;
+    this.minutoEntrada = minutoEntrada;
+    this.placaVehiculo = placaVehiculo;
+    this.pasajeros = pasajeros;
+    this.numeroEntrada = numeroEntrada;
+    this.horaSalida = horaSalida;
+    this.minutoSalida = minutoSalida;
+    this.codigo = codigo;
+    this.zona = zona;
+    this.numeroParqueo = numeroParqueo;
+    this.estado = estado;
   }
 
   //make getters and setters for pasajeros placaVehiculo and codigo
   public void setPasajeros(ArrayList<String> pasajero) {
-    this._pasajeros = pasajero;
+    this.pasajeros = pasajero;
   }
 
-  public ArrayList<String> getPasajeros() {
-    return this._pasajeros;
+  public String getPasajeros() {
+    StringBuilder pasajerosString = new StringBuilder();
+    for (String pasajero : this.pasajeros) {
+      pasajerosString.append(pasajero).append(";");
+    }
+    return pasajerosString.toString();
+  }
+
+  public String getPasajerosToShow() {
+    StringBuilder pasajerosString = new StringBuilder();
+    for (String pasajero : this.pasajeros) {
+      pasajerosString.append(pasajero).append(",");
+    }
+    return pasajerosString
+      .toString()
+      .substring(0, pasajerosString.length() - 1);
   }
 
   public void setPlacaVehiculo(String placaVehiculo) {
-    this._placaVehiculo = placaVehiculo;
+    this.placaVehiculo = placaVehiculo;
   }
 
   public String getPlacaVehiculo() {
-    return this._placaVehiculo;
+    return this.placaVehiculo;
   }
 
   public void setCodigo(String codigo) {
-    this._codigo = codigo;
+    this.codigo = codigo;
   }
 
   public String getCodigo() {
-    return this._codigo;
+    return this.codigo;
   }
 
-  //make a method to get the time of the parking space
   public String getHoraEntrada() {
-    return this._horaEntrada + ":" + this._minutoEntrada;
+    if (
+      (this.horaEntrada == null || this.minutoEntrada == null) ||
+      (this.horaEntrada.equals("") && this.minutoEntrada.equals(""))
+    ) {
+      return null;
+    }
+    return this.horaEntrada + ":" + this.minutoEntrada;
+  }
+
+  public String getOnlyHourEntrada() {
+    return this.horaEntrada;
+  }
+
+  public String getOnlyMinuteEntrada() {
+    return this.minutoEntrada;
+  }
+
+  public String getOnlyHourSalida() {
+    return this.horaSalida;
+  }
+
+  public String getOnlyMinuteSalida() {
+    return this.minutoSalida;
   }
 
   //make a method to get the number of the parking space
   public String getNumeroEntrada() {
-    return this._numeroEntrada;
+    return this.numeroEntrada;
   }
 
   //make a method to get the time of the parking space
   public String getHoraSalida() {
     if (
-      this._horaSalida == null || this._minutoSalida == null
-    ) return "No ha salido";
-    return this._horaSalida + ":" + this._minutoSalida;
+      (this.horaSalida == null || this.minutoSalida == null) ||
+      (this.horaSalida.equals("") && this.minutoSalida.equals(""))
+    ) {
+      return null;
+    }
+    return this.horaSalida + ":" + this.minutoSalida;
+  }
+
+  public String getMinutoEntrada() {
+    return minutoEntrada;
+  }
+
+  public String getMinutoSalida() {
+    return minutoSalida;
+  }
+
+  public void setHoraSalida(String horaSalida) {
+    this.horaSalida = horaSalida;
+  }
+
+  public void setMinutoSalida(String minutoSalida) {
+    this.minutoSalida = minutoSalida;
+  }
+
+  public String getZona() {
+    return this.zona;
+  }
+
+  public String getNumeroParqueo() {
+    return this.numeroParqueo;
+  }
+
+  public void setZona(String zona) {
+    this.zona = zona;
+  }
+
+  public void setNumeroParqueo(String numeroParqueo) {
+    this.numeroParqueo = numeroParqueo;
+  }
+  public String getEstado() {
+    return this.estado;
+  }
+  public void setEstado(String estado) {
+    this.estado = estado;
   }
 }
