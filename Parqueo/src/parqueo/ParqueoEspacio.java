@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package parqueo;
 
 import java.io.Serializable;
@@ -24,8 +20,7 @@ public class ParqueoEspacio implements Serializable {
   private String zona;
   private String numeroParqueo;
   private String estado;
-
-  ///make a constructor using all the fields
+  
   public ParqueoEspacio(
     String horaEntrada,
     String minutoEntrada,
@@ -52,7 +47,6 @@ public class ParqueoEspacio implements Serializable {
     this.estado = estado;
   }
 
-  //make getters and setters for pasajeros placaVehiculo and codigo
   public void setPasajeros(ArrayList<String> pasajero) {
     this.pasajeros = pasajero;
   }
@@ -117,12 +111,9 @@ public class ParqueoEspacio implements Serializable {
     return this.minutoSalida;
   }
 
-  //make a method to get the number of the parking space
   public String getNumeroEntrada() {
     return this.numeroEntrada;
   }
-
-  //make a method to get the time of the parking space
   public String getHoraSalida() {
     if (
       (this.horaSalida == null || this.minutoSalida == null) ||

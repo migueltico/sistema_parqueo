@@ -35,7 +35,7 @@ public class Parqueo {
         int opcion = JOptionPane.showOptionDialog(
           null,
           welcomeDialog + "Seleccione una de las siguientes opciones.",
-          "Menu - " + Config.appName,
+          "Menu - " + Config.appName + " | Proyecto Final (Miguel Esquivel, David Segura, Kevin Solis)",
           JOptionPane.DEFAULT_OPTION,
           JOptionPane.INFORMATION_MESSAGE,
           null,

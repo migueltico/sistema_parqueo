@@ -46,14 +46,33 @@ public class ParqueoController extends Helper implements IParqueo {
     if (hasEntrada) {
       numeroEntrada = createCode();
     }
+    boolean setManualZona = askManualZone();
 
+    String zone = "";
+    String zonaSeleccionada = "";
+
+    if (setManualZona) {
+      String[] options;
+      options = new String[Helper.getMaxZonasParqueo()];
+      for (int i = 0; i < Helper.getMaxZonasParqueo(); i++) {
+        options[i] = "Zona " + (i + 1);
+      }
+      int opcion = JOptionPane.showOptionDialog(
+        null,
+        "Seleccione la zona del parqueo",
+        "Zona",
+        JOptionPane.DEFAULT_OPTION,
+        JOptionPane.INFORMATION_MESSAGE,
+        null,
+        options,
+        options[0]
+      );
+      zonaSeleccionada = options[opcion].substring(5);
+    }
+    zone = getZoneWithSpace(zonaSeleccionada);
     ArrayList<String> pasajeros = setPasajerosList();
-
-    String zone = getZoneWithSpace();
     String numberParqueo = getRandomeNumberParqueo(zone);
-
     String codigo = createCode();
-
     try {
       ParqueoEspacio parqueoInfo = new ParqueoEspacio(
         horaEntrada,
@@ -71,12 +90,10 @@ public class ParqueoController extends Helper implements IParqueo {
       dbList.add(parqueoInfo);
       DbController.writeParqueoEspacioList(dbList);
       String message =
-        "Se asigno el espacio # " +
+        "Se asigno el espacio en el parqueo # " +
         numberParqueo +
         " en la zona # " +
-        zone +
-        " con el codigo " +
-        codigo;
+        zone;
       JOptionPane.showMessageDialog(
         null,
         message,
@@ -134,8 +151,6 @@ public class ParqueoController extends Helper implements IParqueo {
     }
     parqueoInfo.setHoraSalida(horaSalida);
     parqueoInfo.setMinutoSalida(minutoSalida);
-
-    //ask about keep register in db or remove it
     int dialogResult = JOptionPane.showConfirmDialog(
       null,
       "¿Desea eliminar el registro del parqueo? Si elige no hacerlo, el estado del registro se actualizará a 'Retirado' y el registro se mantendrá para futuras consultas",
@@ -220,6 +235,16 @@ public class ParqueoController extends Helper implements IParqueo {
     return result.isEmpty() ? null : result;
   }
 
+  private boolean askManualZone() {
+    int dialogResult = JOptionPane.showConfirmDialog(
+      null,
+      "¿Desea ingresar la zona manualmente? si elige no, se le asignará la primera zona disponible.\n El espacio se asignaran de forma secuencial en el primer espacio disponible de la zona seleccionada",
+      "Zona",
+      JOptionPane.YES_NO_OPTION
+    );
+    return dialogResult == JOptionPane.YES_OPTION;
+  }
+
   private String getInfoForInvoice(ParqueoEspacio data) {
     String horaEntrada = data.getHoraEntrada();
     String horaSalida = data.getHoraSalida();
@@ -234,7 +259,6 @@ public class ParqueoController extends Helper implements IParqueo {
     String styleTable =
       "border-collapse: collapse; border-spacing: 0;height:200px; max-height: 300px;verflow-y: scroll;";
     String styleTd = "border: 1px solid black; padding: 5px;";
-    //crea estructura de la factura usando StringBuilder y arma una factura con los datos del parqueo y los datos de la salida y costos en una variable String con formato de tabla html
     StringBuilder factura = new StringBuilder();
     factura.append("<html><body>");
     factura.append("<table style='" + styleTable + "'>");
@@ -320,12 +344,12 @@ public class ParqueoController extends Helper implements IParqueo {
   }
 
   private LocalTime roundHour(LocalTime hora) {
-    // Redondear siempre hacia arriba a la hora más cercana
+    // redondea siempre hacia arriba a la hora mas cercana
     int minutos = hora.getMinute();
     if (minutos > 0) {
       hora = hora.plusHours(1);
     }
-    // Ajustar la hora a 00:00
+    // ajusta la hora a 00:00
     hora = hora.withMinute(0).withSecond(0).withNano(0);
     return hora;
   }
@@ -353,54 +377,61 @@ public class ParqueoController extends Helper implements IParqueo {
     return horas;
   }
 
-  private String getZoneWithSpace() {
+  private String getZoneWithSpace(String zona) {
     String zone = "";
-    // Recorremos las zonas de parqueo
-    for (int i = 1; i <= Helper.getMaxZonasParqueo(); i++) {
-      // Inicializamos un contador de vehículos registrados en la db en la zona actual
-      int count = 0;
-      // Recorremos la lista de parqueos
+    int count = 0;
+    if (zona.isEmpty()) {
+      for (int i = 1; i <= Helper.getMaxZonasParqueo(); i++) {
+        for (ParqueoEspacio parqueo : dbList) {
+          if (
+            parqueo.getZona().equals(String.valueOf(i)) &&
+            parqueo.getEstado().equals("Ocupado")
+          ) {
+            count++;
+          }
+        }
+        if (count < Helper.getMaxVehiculosEnParqueo()) {
+          zone = String.valueOf(i);
+          break;
+        }
+        count = 0;
+      }
+    } else {
       for (ParqueoEspacio parqueo : dbList) {
-        // Si el parqueo está en la zona actual y esta ocupado, aumentamos el contador
         if (
-          parqueo.getZona().equals(String.valueOf(i)) &&
+          parqueo.getZona().equals(zona) &&
           parqueo.getEstado().equals("Ocupado")
         ) {
           count++;
         }
       }
-      // Si el contador es menor al límite de vehículos en la zona, asignamos el valor de la zona a la variable 'zone' y salimos del bucle
       if (count < Helper.getMaxVehiculosEnParqueo()) {
-        zone = String.valueOf(i);
-        break;
+        zone = zona;
       }
     }
-    // Devolvemos el valor de la variable 'zone'
     return zone;
   }
 
   private String getRandomeNumberParqueo(String zona) {
-    // Creamos una lista para almacenar los números de espacio ocupados en la zona
     List<Integer> ocupados = new ArrayList<>();
-    // Recorremos la lista de parqueos
+    // recorremos la lista de parqueos
     for (ParqueoEspacio parqueo : dbList) {
-      // Si el parqueo está en la zona y está ocupado, añadimos su número a la lista de ocupados
+      // si el parqueo esta en la zona y esta ocupado, añadimos su numero a la lista de ocupados
       if (
         parqueo.getZona().equals(zona) && parqueo.getEstado().equals("Ocupado")
       ) {
         ocupados.add(Integer.parseInt(parqueo.getNumeroParqueo()));
       }
     }
-    // Ordenamos la lista de ocupados
+    // ordenamos la lista de ocupados
     Collections.sort(ocupados);
-    // Recorremos los números del 1 al límite de vehículos en el parqueo
+    // recorremos los números del 1 al límite de vehículos en el parqueo
     for (int i = 1; i <= Helper.getMaxVehiculosEnParqueo(); i++) {
-      // Si el número actual no está en la lista de ocupados, devolvemos ese número
+      // si el numero actual no esta en la lista de ocupados, devolvemos ese numero
       if (!ocupados.contains(i)) {
         return String.valueOf(i);
       }
     }
-    // Si no se ha devuelto ningún valor anteriormente, devolvemos null
     return null;
   }
 
@@ -558,7 +589,11 @@ public class ParqueoController extends Helper implements IParqueo {
     String message = getMessageToHtml(filteredData, maxLength);
     JOptionPane.showMessageDialog(null, message);
   }
-  private ArrayList<ParqueoEspacio> filterDataByZone(ArrayList<ParqueoEspacio> data, String zone) {
+
+  private ArrayList<ParqueoEspacio> filterDataByZone(
+    ArrayList<ParqueoEspacio> data,
+    String zone
+  ) {
     if (zone == null || zone.isEmpty()) {
       return data;
     }
@@ -570,7 +605,6 @@ public class ParqueoController extends Helper implements IParqueo {
     }
     return filteredData;
   }
-  
 
   private static List<Integer> getMaxLength(ArrayList<ParqueoEspacio> data) {
     int maxLengthCodigo = 0;
@@ -612,11 +646,8 @@ public class ParqueoController extends Helper implements IParqueo {
     List<Integer> maxLength
   ) {
     StringBuilder sb = new StringBuilder();
-
-    // Agrega cada línea del resultado de printWrapped al StringBuilder
     String style =
       "<td style='border: 1px solid black; padding: 2px 10px;text-align: left;'>";
-    //thead using padding to make it look like the table using String style
     String thead =
       "<thead><tr>" +
       style +
@@ -720,10 +751,7 @@ public class ParqueoController extends Helper implements IParqueo {
   }
 
   public void report() {
-    // preguntar por la zona a reportar y el tipo de reporte
-
     String[] options;
-    //fill options with the zones available in Helper.getMaxZonasParqueo()
     options = new String[Helper.getMaxZonasParqueo()];
     for (int i = 0; i < Helper.getMaxZonasParqueo(); i++) {
       options[i] = "Zona " + (i + 1);
@@ -755,7 +783,7 @@ public class ParqueoController extends Helper implements IParqueo {
     }
     zona = zona.substring(5);
 
-    // lee el archivo y asignar a un arraylist
+    // lee el archivo y asigna a un arraylist
     ArrayList<ParqueoEspacio> data = new ArrayList<>();
     DbController.readParqueoEspacioList();
 
@@ -765,7 +793,7 @@ public class ParqueoController extends Helper implements IParqueo {
         data.add(p);
       }
     }
-    // ejecutar el reporte correspondiente al tipo
+    // ejecuta el reporte correspondiente al tipo
     if (tipo.equals("Reporte por Placa")) {
       reportePorPlaca(data);
     } else {
@@ -828,12 +856,9 @@ public class ParqueoController extends Helper implements IParqueo {
   }
 
   public void init() {
-    //if exist path file
     if (DbController.existPathFile()) {
-      //read file
       dbList = DbController.readParqueoEspacioList();
     } else {
-      //create file
       boolean wasCreate = DbController.createFile();
       if (wasCreate) {
         dbList = DbController.readParqueoEspacioList();
